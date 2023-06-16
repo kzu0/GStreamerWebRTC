@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="utf-8"/>
+  <title>Realtime communication with WebRTC</title>
+  <link rel="stylesheet" href="css/main.css" />
+
+</head>
+
+<body>
+
+    <h1>Realtime communication with WebRTC</h1>
+
+    <div id="videos">
+        <video class="video-player" id="user-1" autoplay playsinline> </video>
+        <video class="video-player" id="user-2" autoplay playsinline> </video>
+
+    </div>
+
+
+
+    <label>Send Video</label>
+    <input id="send-video-switch" type="checkbox">
+
+
+
+    <label>Use Signaling Server</label>
+    <input id="use-signaling-server" type="checkbox">
+
+
+
+    <div id="controls">
+        <input id="peer-connect-button" onclick="onInitPeerConnectionClicked();" type="button" value="Create Peer Connection">
+        <label>Peer Connection</label>
+        <textarea id="peer-connection"></textarea>
+
+        <input id="create-offer-button" onclick="onCreateOfferClicked();" type="button" value="Create Offer">
+        <label>SDP Offer</label>
+        <textarea id="offer-sdp"></textarea>
+
+        <input id="create-answer-button" onclick="onCreateAnswerClicked();" type="button" value="Create Answer">
+        <label>SDP Answer</label>
+        <textarea id="answer-sdp"></textarea>
+
+        <input id="add-answer-button" onclick="onAddAnswerClicked();" type="button" value="Add Answer">  
+    </div>
+
+
+
+</body>
+
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="js/main.js"></script>
+
+</html>
