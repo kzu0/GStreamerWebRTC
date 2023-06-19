@@ -1,4 +1,7 @@
 #include "QGstWebRTCObject.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <QDebug>
 //-------------------------------------------------------------------------------------------------------------------------------------------
 QGstWebRTCObject::QGstWebRTCObject(QObject *parent) : QObject(parent) {
@@ -42,12 +45,30 @@ void QGstWebRTCObject::InstantiatePipeline() {
         GstStateChangeReturn ret;
         GError *error = NULL;
 
-        data.pipeline = gst_parse_launch ("webrtcbin bundle-policy=max-bundle name=sendrecv "
-                                          "videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! x264enc ! rtph264pay ! "
-                                          "queue ! " RTP_CAPS_H264 " ! sendrecv. ", &error);
 
-        // imxvpuenc_h264
 
+
+        QString enc;
+        char hostname[1024];
+        gethostname(hostname, 1024);
+        if (strcmp(hostname, "ketron-var-som-mx6")) {
+            enc = "imxvpuenc_h264";
+        } else {
+            enc = "x264enc";
+        }
+        puts(hostname);
+
+        QString str = QString::fromUtf8("webrtcbin bundle-policy=max-bundle name=sendrecv videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! ") +
+                enc +
+                QString::fromUtf8(" ! rtph264pay ! queue ! ") +
+                QString::fromUtf8(RTP_CAPS_H264) +
+                QString::fromUtf8(" ! sendrecv. ");
+
+
+
+
+
+        data.pipeline = gst_parse_launch (str.toUtf8().constData(), &error);
 
         if (error) {
             g_printerr ("Failed to parse launch: %s\n", error->message);
