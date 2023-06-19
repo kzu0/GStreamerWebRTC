@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     server = new QSignalingServer("Signaling Server", QWebSocketServer::NonSecureMode, this);
     connect(server, SIGNAL(onOfferRequest()), stream, SLOT(OnOfferRequest()));
+    connect(server, SIGNAL(onUnconnect()), stream, SLOT(OnUnconnect()));
     connect(server, SIGNAL(onAnswer(QString)), stream, SLOT(OnAnswer(QString)));
     connect(stream, SIGNAL(onOfferReady(QString)), server, SLOT(OnOfferReady(QString)));
 }

@@ -83,7 +83,10 @@ private slots:
     void OnOfferRequest();
     void OnAnswer(QString);
 
+    void OnUnconnect();
+
     void onTimeout();
+
 
 signals:
     void onOffer(QString);

@@ -44,6 +44,7 @@ signals:
     void onOfferRequest();
     void onAnswer(QString);
 
+    void onUnconnect();
 };
 
 #endif // QSIGNALINGSERVER_H

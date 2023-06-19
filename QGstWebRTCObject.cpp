@@ -132,6 +132,9 @@ void QGstWebRTCObject::DisposePipeline() {
 
         data.pipeline = NULL;
         data.obj = NULL;
+
+        offer = QString();
+        icecandidates.clear();
     }
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -446,6 +449,10 @@ void QGstWebRTCObject::AddOffer(QString offer) {
 //-------------------------------------------------------------------------------------------------------------------------------------------
 void QGstWebRTCObject::AddIceCandidate(QString candidate) {
 
+
+    qDebug() << "AddIceCandidate" << candidate;
+
+
     if (not candidate.isEmpty()) {
         this->icecandidates.append(candidate);
         emit onIceCandidate(candidate);
@@ -466,7 +473,16 @@ void QGstWebRTCObject::OnAnswer(QString answer) {
     SetRemoteDescription(answer);
 }
 //-------------------------------------------------------------------------------------------------------------------------------------------
+void QGstWebRTCObject::OnUnconnect() {
+
+    qDebug() << "OnUnconnect";
+
+    DisposePipeline();
+}
+//-------------------------------------------------------------------------------------------------------------------------------------------
 void QGstWebRTCObject::onTimeout() {
+
+    qDebug() << "TimeOut";
 
     QString offer = ComposeOffer();
 

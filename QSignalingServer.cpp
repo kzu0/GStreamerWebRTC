@@ -44,6 +44,8 @@ void QSignalingServer::onStateChanged(QAbstractSocket::SocketState socketState) 
 
     switch(socketState) {
     case QAbstractSocket::UnconnectedState:
+        sockets.removeOne(socket);
+        emit onUnconnect();
         qDebug() << "QAbstractSocket::UnconnectedState";
         break;
     case QAbstractSocket::HostLookupState:
