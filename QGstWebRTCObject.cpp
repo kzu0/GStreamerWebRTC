@@ -51,7 +51,7 @@ void QGstWebRTCObject::InstantiatePipeline() {
         QString enc;
         char hostname[1024];
         gethostname(hostname, 1024);
-        if (strcmp(hostname, "ketron-var-som-mx6")) {
+				if (strcmp(hostname, "ketron-var-som-mx6\n")) {
             enc = "imxvpuenc_h264";
         } else {
             enc = "x264enc";
