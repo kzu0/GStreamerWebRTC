@@ -10,14 +10,40 @@ var ws_conn;
 let uid = String(Math.floor(Math.random() * 10000))
 
 let configuration = {
+
+
+
+    /*
     iceServers:[
         {
-            //urls:['stun:stun1.1.google.com:19302', 'stun:stun2.1.google.com:19302']
-            urls:['', '']
+            urls:['stun:stun1.1.google.com:19302', 'stun:stun2.1.google.com:19302']
+            //urls:['', '']
 
          
         }
     ]
+    */
+
+
+
+
+}
+
+
+
+var rtc_configuration = {iceServers: [{urls: "stun:stun.l.google.com:19302"},
+                                      {urls: ["turn:webrtc.gstreamer.net", "turns:webrtc.gstreamer.net"],
+                                       username: "gstreamer",
+                                       credential: "IsGreatWhenYouCanGetItToWork"}]};
+
+
+
+
+
+
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 //
@@ -26,7 +52,7 @@ let configuration = {
 let init = async () => {
     localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:false})
     document.getElementById('user-1').srcObject = localStream
-    document.getElementById('peer-connection').value = ''
+    document.getElementById('peer-connection').value = '192.168.0.229'
     document.getElementById('offer-sdp').value = ''
     document.getElementById('answer-sdp').value = ''
 }
@@ -41,7 +67,7 @@ let initPeerConnection = async () => {
     //
     // Create the RTCPeerConnection object
     //
-    peerConnection = new RTCPeerConnection()
+    peerConnection = new RTCPeerConnection(rtc_configuration)
 
     //
     // For now is empty, no tracks are added to the stream yet
@@ -85,7 +111,10 @@ let initPeerConnection = async () => {
         if (event.candidate){
             console.log('On ICE candidate')
             document.getElementById('offer-sdp').value = JSON.stringify(peerConnection.localDescription)
-            //ws_conn.send(JSON.stringify(event.candidate));
+
+            if (ws_conn) {
+                ws_conn.send(JSON.stringify(event.candidate));
+            }
         }
     }
 
@@ -95,7 +124,6 @@ let initPeerConnection = async () => {
     //
     peerConnection.onicegatheringstatechange = async (event) => {
         console.log('On ICE gathering state changed')
-        document.getElementById('peer-connection').value = peerConnection.iceConnectionState
 
         let connection = event.target;
         switch (connection.iceGatheringState) {
@@ -107,8 +135,11 @@ let initPeerConnection = async () => {
                 console.log('complete')
                 /* collection of candidates is finished */
 
+                sleep(5000)
+
                 if (ws_conn) {
-                    ws_conn.send(JSON.stringify(peerConnection.localDescription));
+                    ws_conn.send(JSON.stringify(peerConnection.localDescription))
+                    console.log(JSON.stringify(peerConnection.localDescription))
                 }
                 break;
         }
@@ -264,7 +295,9 @@ let connectToWs = async () => {
     console.log('connectToWs')
 
     ws_port = ws_port || '8080';
+    ws_server = ws_server || document.getElementById('peer-connection').value
 
+    /*
     if (window.location.protocol.startsWith ("file")) {
         ws_server = ws_server || "127.0.0.1";
     } else if (window.location.protocol.startsWith ("http")) {
@@ -272,12 +305,15 @@ let connectToWs = async () => {
     } else {
         throw new Error ("Don't know how to connect to the signalling server with uri" + window.location);
     }
+    */
 
     var ws_url = 'ws://' + ws_server + ':' + ws_port
     
-    //ws_conn = new WebSocket(ws_url);
+    ws_conn = new WebSocket(ws_url);
+    //ws_conn = new WebSocket('ws://192.168.5.1:8080');
     //ws_conn = new WebSocket('ws://192.168.0.211:8080');
-    ws_conn = new WebSocket('ws://127.0.0.1:8080');
+    //ws_conn = new WebSocket('ws://192.168.0.229:8080');
+    //ws_conn = new WebSocket('ws://127.0.0.1:8080');
 
     ws_conn.addEventListener('open', onServerOpen);
     ws_conn.addEventListener('error', onServerError);
