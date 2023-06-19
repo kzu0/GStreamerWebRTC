@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include <QApplication>
 
-int main(int argc, char *argv[])
-{
+// file:///home/moscara/Scrivania/WEBRTC/HTML/index.html
+
+int main(int argc, char *argv[]) {
+
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
