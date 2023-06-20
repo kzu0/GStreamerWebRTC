@@ -54,7 +54,7 @@ void QGstWebRTCObject::InstantiatePipeline() {
 				qDebug() << hostname;
 				qDebug() << QByteArray(hostname);
 				if (strcmp(hostname, "ketron-var-som-mx6")) {
-            enc = "x264enc";
+            enc = "x264enc bitrate=600 speed-preset=ultrafast tune=zerolatency key-int-max=15";
         } else {
             enc = "imxvpuenc_h264";
         }
@@ -87,6 +87,20 @@ void QGstWebRTCObject::InstantiatePipeline() {
 
         data.webrtc1 = gst_bin_get_by_name (GST_BIN (data.pipeline), "sendrecv");
         g_assert_nonnull (data.webrtc1);
+
+
+        //
+        // Set webrtc to sendonly
+        //
+        GArray *transceivers;
+        GstWebRTCRTPTransceiver *trans;
+        g_signal_emit_by_name (data.webrtc1, "get-transceivers", &transceivers);
+        g_assert (transceivers != NULL && transceivers->len > 0);
+        trans = g_array_index (transceivers, GstWebRTCRTPTransceiver *, 0);
+        trans->direction = GST_WEBRTC_RTP_TRANSCEIVER_DIRECTION_SENDONLY;
+        g_array_unref (transceivers);
+
+
 
         // This is the gstwebrtc entry point where we create the offer and so on. It
         // will be called when the pipeline goes to PLAYING.
@@ -234,6 +248,11 @@ void QGstWebRTCObject::SetRemoteDescription(QString descr) {
                 g_signal_emit_by_name (data.webrtc1, "set-remote-description", answer, promise);
                 gst_promise_interrupt (promise);
                 gst_promise_unref (promise);
+
+                usleep(2000);
+
+                qDebug() << "\n\n\n-----------------------------";
+                qDebug() << "remote description:" << GetRemoteDescritpion();
 
                 gst_webrtc_session_description_free(answer);
             }

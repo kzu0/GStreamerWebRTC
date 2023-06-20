@@ -132,6 +132,9 @@ void QSignalingServer::OnIceCandidate(QString candidate) {
 //-------------------------------------------------------------------------------------------------------------------------------------------
 void QSignalingServer::OnOfferReady(QString offer) {
 
+    qDebug() << "\n\nOFFER";
+    qDebug() << offer;
+
     if (sockets.isEmpty()) {
         return;
     }

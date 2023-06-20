@@ -67,7 +67,7 @@ let initPeerConnection = async () => {
     //
     // Create the RTCPeerConnection object
     //
-    peerConnection = new RTCPeerConnection(rtc_configuration)
+    peerConnection = new RTCPeerConnection()
 
     //
     // For now is empty, no tracks are added to the stream yet
