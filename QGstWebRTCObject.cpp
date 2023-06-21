@@ -54,17 +54,18 @@ void QGstWebRTCObject::InstantiatePipeline() {
 				qDebug() << hostname;
 				qDebug() << QByteArray(hostname);
 				if (strcmp(hostname, "ketron-var-som-mx6")) {
-            enc = "x264enc bitrate=600 speed-preset=ultrafast tune=zerolatency key-int-max=15";
+						enc = "x264enc bitrate=600 speed-preset=ultrafast tune=zerolatency key-int-max=15";
         } else {
-            enc = "imxvpuenc_h264";
+						enc = "imxvpuenc_h264 drop=false gop-size=16 bitrate=0 idr-interval=120";
         }
+				enc = "vp8enc deadline=1";
         puts(hostname);
 
-        QString str = QString::fromUtf8("webrtcbin bundle-policy=max-bundle name=sendrecv videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! ") +
+				QString str = QString::fromUtf8("webrtcbin bundle-policy=max-bundle name=sendonly videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! ") +
                 enc +
-                QString::fromUtf8(" ! rtph264pay ! queue ! ") +
-                QString::fromUtf8(RTP_CAPS_H264) +
-                QString::fromUtf8(" ! sendrecv. ");
+								QString::fromUtf8(" ! rtpvp8pay ! queue ! ") +
+								QString::fromUtf8(RTP_CAPS_VP8) +
+								QString::fromUtf8(" ! sendonly. ");
 
 
 
@@ -85,7 +86,7 @@ void QGstWebRTCObject::InstantiatePipeline() {
             }
         }
 
-        data.webrtc1 = gst_bin_get_by_name (GST_BIN (data.pipeline), "sendrecv");
+				data.webrtc1 = gst_bin_get_by_name (GST_BIN (data.pipeline), "sendonly");
         g_assert_nonnull (data.webrtc1);
 
 
@@ -393,7 +394,7 @@ bool QGstWebRTCObject::check_plugins (void) {
     bool ret;
     GstPlugin *plugin;
     GstRegistry *registry;
-    const gchar *needed[] = { "nice", "webrtc", "dtls", "srtp","rtpmanager", "videotestsrc", NULL};
+		const gchar *needed[] = { "nice", "webrtc", "dtls", "srtp","rtpmanager", "videotestsrc", "vp8enc", "rtpvp8pay", NULL};
     registry = gst_registry_get ();
     ret = TRUE;
     for (i = 0; i < g_strv_length ((gchar **) needed); i++) {
