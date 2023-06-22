@@ -48,6 +48,7 @@ void QGstWebRTCObject::InstantiatePipeline() {
 
 
 
+				/*
         QString enc;
         char hostname[1024];
         gethostname(hostname, 1024);
@@ -61,11 +62,38 @@ void QGstWebRTCObject::InstantiatePipeline() {
 				enc = "vp8enc deadline=1";
         puts(hostname);
 
-				QString str = QString::fromUtf8("webrtcbin bundle-policy=max-bundle name=sendonly videotestsrc is-live=true pattern=ball ! videoconvert ! queue ! ") +
+				QString str = QString::fromUtf8("webrtcbin bundle-policy=max-bundle name=sendonly multifilesrc location=/dev/fb0 ! videoparse format=29 width= 800 height= 480 framerate=15/1 ! imxipuvideotransform  ! queue ! ") +
                 enc +
-								QString::fromUtf8(" ! rtpvp8pay ! queue ! ") +
-								QString::fromUtf8(RTP_CAPS_VP8) +
+								QString::fromUtf8(" ! rtpvp8pay ! queue ! ") +		// rtpvp8pay		| rtph264pay
+								QString::fromUtf8(RTP_CAPS_VP8) +									// RTP_CAPS_VP8 | RTP_CAPS_H264
 								QString::fromUtf8(" ! sendonly. ");
+				*/
+
+
+				QString str;
+				bool h264 = true;
+
+				if (h264) {
+
+					str = "webrtcbin bundle-policy=max-bundle name=sendonly "
+								"multifilesrc location=/dev/fb0 ! videoparse format=29 width= 800 height= 480 framerate=15/1 ! "
+								"imxipuvideotransform  ! queue ! "
+								"imxvpuenc_h264 drop=false gop-size=16 bitrate=0 idr-interval=120 ! rtph264pay ! queue ! application/x-rtp,media=video,encoding-name=H264,payload=96 ! "
+								"sendonly. ";
+
+				} else {
+
+					str = "webrtcbin bundle-policy=max-bundle name=sendonly "
+								"multifilesrc location=/dev/fb0 ! videoparse format=29 width= 800 height= 480 framerate=15/1 ! "
+								"imxipuvideotransform  ! queue ! "
+								"vp8enc deadline=1 ! rtpvp8pay ! queue ! application/x-rtp,media=video,encoding-name=VP8,payload=96 ! "
+								"sendonly. ";
+				}
+
+
+
+
+
 
 
 
@@ -394,7 +422,7 @@ bool QGstWebRTCObject::check_plugins (void) {
     bool ret;
     GstPlugin *plugin;
     GstRegistry *registry;
-		const gchar *needed[] = { "nice", "webrtc", "dtls", "srtp","rtpmanager", "videotestsrc", "vp8enc", "rtpvp8pay", NULL};
+		const gchar *needed[] = { "nice", "webrtc", "dtls", "srtp","rtpmanager", "videotestsrc", "vpx", NULL};
     registry = gst_registry_get ();
     ret = TRUE;
     for (i = 0; i < g_strv_length ((gchar **) needed); i++) {
